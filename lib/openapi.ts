@@ -77,6 +77,20 @@ export const openApiDocument = {
         }
       }
     },
+    "/debug/sheets": {
+      get: {
+        tags: ["Debug"],
+        summary: "Check Google Sheets connection status",
+        description: "Verify Google Sheets environment and sheet access for the automation database.",
+        parameters: [
+          query("range", "string")
+        ],
+        responses: {
+          "200": { description: "Google Sheets health check" },
+          "500": { description: "Server error" }
+        }
+      }
+    },
     "/actions/{actionName}": {
       post: {
         tags: ["Actions"],

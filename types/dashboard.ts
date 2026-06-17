@@ -104,4 +104,5 @@ export type DashboardSummaryResponse = {
   };
   recentActivity: TimelineEvent[];
   generatedAt: string;
+  source?: "google_sheets" | "mock";
 };

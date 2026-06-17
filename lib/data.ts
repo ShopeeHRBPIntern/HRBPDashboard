@@ -383,19 +383,23 @@ const statusLabels: Record<string, string> = {
 };
 
 const externalActors = new Set(["PAYROLL", "HIRING_MANAGER", "CURRENT_MANAGER", "CURRENT_HOD"]);
+let lastSource: "google_sheets" | "mock" = "mock";
 
 async function loadCaseRows(): Promise<CaseRow[]> {
   const rows = await readAutomationTab("cases");
+  setSource(rows);
   return rows.length ? rows.map((row) => withCaseDefaults(row)) : caseRows;
 }
 
 async function loadTransferRows(): Promise<CleanedTransferRow[]> {
   const rows = await readAutomationTab("Internal transfer cleaned data");
+  setSource(rows);
   return rows.length ? rows.map((row) => withTransferDefaults(row)) : transferRows;
 }
 
 async function loadOnboardingRows(): Promise<OnboardingJoinerSummary[]> {
   const rows = await readAutomationTab("Onboarding_Process");
+  setSource(rows);
   return rows.length ? rows.map((row) => normalizeOnboardingRow(row)) : onboardingRows;
 }
 
@@ -449,6 +453,7 @@ function normalizeCase(row: CaseRow, transfers: CleanedTransferRow[]): CaseSumma
 }
 
 export async function getInternalTransferCases() {
+  resetSource();
   const rows = await loadCaseRows();
   const transfers = await loadTransferRows();
   const items = rows.filter((row) => row.transfer_type !== "CONVERSION").map((row) => normalizeCase(row, transfers));
@@ -458,11 +463,13 @@ export async function getInternalTransferCases() {
     pageSize: 8,
     total: items.length,
     statusCounts: countBy(items, (item) => item.statusLabel),
-    generatedAt
+    generatedAt,
+    source: lastSource
   };
 }
 
 export async function getConversionCases() {
+  resetSource();
   const rows = await loadCaseRows();
   const transfers = await loadTransferRows();
   const items = rows.filter((row) => row.transfer_type === "CONVERSION").map((row) => normalizeCase(row, transfers));
@@ -472,11 +479,13 @@ export async function getConversionCases() {
     pageSize: 8,
     total: items.length,
     statusCounts: countBy(items, (item) => item.statusLabel),
-    generatedAt
+    generatedAt,
+    source: lastSource
   };
 }
 
 export async function getInternalTransferDetail(caseId: string): Promise<InternalTransferDetail | null> {
+  resetSource();
   const rows = await loadCaseRows();
   const transfers = await loadTransferRows();
   const row = rows.find((item) => item.case_id === caseId);
@@ -511,16 +520,19 @@ export async function getInternalTransferDetail(caseId: string): Promise<Interna
 }
 
 export async function getOnboardingJoiners() {
+  resetSource();
   const rows = await loadOnboardingRows();
   return {
     items: rows,
     total: rows.length,
     stepCounts: countBy(rows, (item) => item.stepTracker),
-    generatedAt
+    generatedAt,
+    source: lastSource
   };
 }
 
 export async function getDashboardSummary(): Promise<DashboardSummaryResponse> {
+  resetSource();
   const transfers = (await getInternalTransferCases()).items;
   const conversions = (await getConversionCases()).items;
   const onboarding = (await loadOnboardingRows());
@@ -544,8 +556,19 @@ export async function getDashboardSummary(): Promise<DashboardSummaryResponse> {
       event("CONV-2024-0012", "Effective date received", "HRBP", "done", "22 May 2024 15:30"),
       event("ONB-42", "Day 3 onboarding check-in due", "System", "pending", "23 May 2024 08:55")
     ],
-    generatedAt
+    generatedAt,
+    source: lastSource
   };
+}
+
+function setSource(rows: Array<unknown>) {
+  if (rows.length > 0) {
+    lastSource = "google_sheets";
+  }
+}
+
+function resetSource() {
+  lastSource = "mock";
 }
 
 function summary(process: ProcessCode, label: string, openCount: number, overdueCount: number, completedThisMonth: number, errorCount: number) {
