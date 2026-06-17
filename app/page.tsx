@@ -7,9 +7,15 @@ import { getDashboardSummary } from "@/lib/data";
 
 export default async function DashboardPage() {
   const summary = await getDashboardSummary();
+  const counts = {
+    dashboard: summary.metrics.openCases,
+    "internal-transfer": summary.processes.find((p) => p.process === "internal_transfer")?.openCount ?? 0,
+    conversion: summary.processes.find((p) => p.process === "conversion")?.openCount ?? 0,
+    onboarding: summary.processes.find((p) => p.process === "onboarding")?.openCount ?? 0
+  };
 
   return (
-    <AppShell active="dashboard" title="Overall Dashboard" subtitle="Cross-process HRBP operations view.">
+    <AppShell active="dashboard" title="Overall Dashboard" subtitle="Cross-process HRBP operations view." counts={counts}>
       <div className="grid grid-cols-4 gap-4">
         <MetricCard label="Total Open" value={summary.metrics.openCases} icon={UsersRound} />
         <MetricCard label="Overdue Tasks" value={summary.metrics.overdueTasks} icon={Clock3} tone="red" />

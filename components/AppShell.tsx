@@ -31,29 +31,37 @@ export function AppShell({
   active,
   title,
   subtitle,
-  children
+  children,
+  counts
 }: {
   active: string;
   title: string;
   subtitle?: string;
   children: ReactNode;
+  counts?: { dashboard?: number; "internal-transfer"?: number; conversion?: number; onboarding?: number };
 }) {
   return (
     <div className="min-h-screen bg-soft text-ink">
       <aside className="fixed inset-y-0 left-0 z-20 flex w-64 flex-col border-r border-line bg-white">
         <div className="flex h-16 items-center gap-3 border-b border-line px-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand text-sm font-bold text-white">S</div>
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg overflow-hidden">
+            <img src="/logo.jpeg" alt="Logo" className="h-9 w-9 object-cover" />
+          </div>
           <div>
             <p className="font-bold leading-tight">Smart HR Ops</p>
             <p className="text-xs text-slate-500">Automation Platform</p>
           </div>
         </div>
-
         <div className="flex-1 overflow-y-auto px-3 py-5">
           <p className="px-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Processes</p>
           <nav className="mt-2 space-y-1">
-            {nav.map((item) => {
-              const Icon = item.icon;
+            {[
+              { href: "/", label: "Overall Dashboard", key: "dashboard", icon: Home, count: counts?.dashboard ?? "-" },
+              { href: "/internal-transfer", label: "Internal Transfer", key: "internal-transfer", icon: BriefcaseBusiness, count: counts?.["internal-transfer"] ?? "-" },
+              { href: "/conversion", label: "Conversion", key: "conversion", icon: RefreshCcw, count: counts?.conversion ?? "-" },
+              { href: "/onboarding", label: "Onboarding", key: "onboarding", icon: UserPlus, count: counts?.onboarding ?? "-" }
+            ].map((item) => {
+              const Icon = item.icon as any;
               const selected = active === item.key;
               return (
                 <Link

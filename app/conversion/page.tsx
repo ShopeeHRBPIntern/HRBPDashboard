@@ -8,9 +8,10 @@ const steps = ["Start", "Eligibility", "HOC Approval", "Effective Date", "Sheet 
 
 export default async function ConversionPage() {
   const cases = await getConversionCases();
+  const counts = { conversion: cases.total };
 
   return (
-    <AppShell active="conversion" title="Conversion Process" subtitle="Partially connected conversion process with live case rows and mockup-only workflow steps.">
+    <AppShell active="conversion" title="Conversion Process" subtitle="Partially connected conversion process with live case rows and mockup-only workflow steps." counts={counts}>
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-800">
         Conversion workflow is partially connected. Some steps are mockup-only in v1.
       </div>

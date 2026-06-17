@@ -16,9 +16,10 @@ const stepLabels: Record<string, string> = {
 export default async function OnboardingPage() {
   const joiners = await getOnboardingJoiners();
   const active = joiners.items.filter((item) => !item.onboardingCompleted).length;
+  const counts = { onboarding: joiners.total };
 
   return (
-    <AppShell active="onboarding" title="Onboarding Process" subtitle="New joiner readiness and automated message tracking.">
+    <AppShell active="onboarding" title="Onboarding Process" subtitle="New joiner readiness and automated message tracking." counts={counts}>
       <div className="grid grid-cols-5 gap-4">
         <MetricCard label="Active Joiners" value={active} icon={UserPlus} />
         <MetricCard label="Completed" value={joiners.total - active} icon={CheckCircle2} tone="green" />

@@ -5,11 +5,13 @@ import type { ReactNode } from "react";
 import { AppShell, CheckPill } from "@/components/AppShell";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { StatusBadge } from "@/components/StatusBadge";
-import { getInternalTransferDetail } from "@/lib/data";
+import { getInternalTransferDetail, getInternalTransferCases } from "@/lib/data";
 
 export default async function InternalTransferDetailPage({ params }: { params: { caseId: string } }) {
   const detail = await getInternalTransferDetail(params.caseId);
   if (!detail) notFound();
+
+  const counts = { "internal-transfer": (await getInternalTransferCases()).total };
 
   const initials = detail.candidateName
     .split(" ")
@@ -19,7 +21,7 @@ export default async function InternalTransferDetailPage({ params }: { params: {
     .toUpperCase();
 
   return (
-    <AppShell active="internal-transfer" title="Internal Transfer" subtitle="Case detail and workflow status.">
+    <AppShell active="internal-transfer" title="Internal Transfer" subtitle="Case detail and workflow status." counts={counts}>
       <Link href="/internal-transfer" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600">
         <ArrowLeft className="h-4 w-4" />
         Back to Open Cases
