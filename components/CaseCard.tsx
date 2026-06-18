@@ -1,7 +1,8 @@
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, UsersRound } from "lucide-react";
 import Link from "next/link";
 import type { CaseSummary } from "@/types/dashboard";
 import { StatusBadge } from "./StatusBadge";
+import { HrbpOwnerBadge } from "./HrbpOwnerBadge";
 
 export function CaseCard({ item }: { item: CaseSummary }) {
   const initials = item.candidateName
@@ -10,6 +11,28 @@ export function CaseCard({ item }: { item: CaseSummary }) {
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
+  const parseOwners = (v?: string) => {
+    if (!v) return [] as string[];
+    try {
+      const parsed = JSON.parse(v);
+      if (Array.isArray(parsed)) return parsed.map(String).map((s) => s.trim()).filter(Boolean);
+    } catch {}
+    return v.split(/[,;|]/).map((s) => s.trim()).filter(Boolean);
+  };
+
+  const owners = parseOwners(item.hrbpCase);
+  const badgeOwners = owners.map((owner) => ({
+    id: owner,
+    name: owner,
+    nickname: owner,
+    initials: owner
+      .split(/\s+/)
+      .map((part) => part[0] ?? "")
+      .join("")
+      .slice(0, 2)
+      .toUpperCase(),
+  }));
 
   return (
     <article className="rounded-lg border border-line bg-white p-4 shadow-panel">
@@ -25,6 +48,16 @@ export function CaseCard({ item }: { item: CaseSummary }) {
         <div className="min-w-0">
           <h3 className="truncate font-bold">{item.candidateName}</h3>
           <p className="truncate text-xs text-slate-500">{item.roleTitle ?? "HR Specialist"}</p>
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-600">
+            <UsersRound className="h-3 w-3 text-slate-400" />
+            <div className="flex flex-wrap items-center gap-1">
+              {badgeOwners.length ? (
+                badgeOwners.map((owner) => <HrbpOwnerBadge key={owner.id} owner={owner} />)
+              ) : (
+                <span className="truncate">{item.hrbpCase ?? "-"}</span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

@@ -17,8 +17,13 @@ type CaseRow = {
   pending_actor: string;
   next_action: string;
   auto_screen_result: string;
+  hrbp_criteria_decision: string;
   salary_check_result: string;
+  hrbp_payroll_decision: string;
+  current_manager_result: string;
+  hrbp_cm_rejectCase_decision: string;
   interview_result: string;
+  hrbp_interview_fail_decision: string;
   effective_date: string;
   current_manager_approval: string;
   hod_approval: string;
@@ -76,8 +81,13 @@ const caseRows: CaseRow[] = [
     pending_actor: "PAYROLL",
     next_action: "Waiting for P'Tae salary check result",
     auto_screen_result: "PASS",
+    hrbp_criteria_decision: "PASS",
     salary_check_result: "PENDING",
+    hrbp_payroll_decision: "PENDING",
+    current_manager_result: "",
+    hrbp_cm_rejectCase_decision: "",
     interview_result: "",
+    hrbp_interview_fail_decision: "",
     effective_date: "",
     current_manager_approval: "",
     hod_approval: "",
@@ -98,8 +108,13 @@ const caseRows: CaseRow[] = [
     pending_actor: "PAYROLL",
     next_action: "Salary eligibility response required",
     auto_screen_result: "PASS",
+    hrbp_criteria_decision: "PASS",
     salary_check_result: "PENDING",
+    hrbp_payroll_decision: "PENDING",
+    current_manager_result: "",
+    hrbp_cm_rejectCase_decision: "",
     interview_result: "",
+    hrbp_interview_fail_decision: "",
     effective_date: "",
     current_manager_approval: "",
     hod_approval: "",
@@ -120,8 +135,13 @@ const caseRows: CaseRow[] = [
     pending_actor: "CURRENT_HOD",
     next_action: "HOD approval required",
     auto_screen_result: "PASS",
+    hrbp_criteria_decision: "PASS",
     salary_check_result: "APPROVED",
+    hrbp_payroll_decision: "APPROVED",
+    current_manager_result: "APPROVED",
+    hrbp_cm_rejectCase_decision: "",
     interview_result: "APPROVED",
+    hrbp_interview_fail_decision: "PASS",
     effective_date: "2024-05-27",
     current_manager_approval: "APPROVED",
     hod_approval: "PENDING",
@@ -142,8 +162,13 @@ const caseRows: CaseRow[] = [
     pending_actor: "HRBP",
     next_action: "Send Head of Country approval email",
     auto_screen_result: "PASS",
+    hrbp_criteria_decision: "PASS",
     salary_check_result: "",
+    hrbp_payroll_decision: "",
+    current_manager_result: "",
+    hrbp_cm_rejectCase_decision: "",
     interview_result: "",
+    hrbp_interview_fail_decision: "",
     effective_date: "",
     current_manager_approval: "",
     hod_approval: "",
@@ -164,8 +189,13 @@ const caseRows: CaseRow[] = [
     pending_actor: "HRBP",
     next_action: "Update conversion tracker sheets",
     auto_screen_result: "PASS",
+    hrbp_criteria_decision: "PASS",
     salary_check_result: "",
+    hrbp_payroll_decision: "APPROVED",
+    current_manager_result: "APPROVED",
+    hrbp_cm_rejectCase_decision: "",
     interview_result: "",
+    hrbp_interview_fail_decision: "PASS",
     effective_date: "23/06/2026",
     current_manager_approval: "",
     hod_approval: "APPROVED",
@@ -187,7 +217,7 @@ const transferRows: CleanedTransferRow[] = [
     unique_job_id: "SPE-PC-0058",
     join_status: "MATCHED",
     submitted_at: "20 May 2024 10:30",
-    candidate_email: "nattaya.s@company.com",
+    candidate_email: "nattaya.s@shopee.com",
     candidate_name: "Nattaya Srisawat",
     employee_id: "EMP-01234",
     current_entity: "SPE",
@@ -203,7 +233,7 @@ const transferRows: CleanedTransferRow[] = [
     hris_current_team: "People Operations Department",
     hris_current_title: "HR Specialist",
     hris_reporting_manager: "Napatch Charoensuk",
-    hris_reporting_manager_email: "napatch.c@company.com",
+    hris_reporting_manager_email: "napatch.c@shopee.com",
     hris_yos: "14",
     current_performance: "A-",
     hrbp: "HRBP Main",
@@ -211,7 +241,7 @@ const transferRows: CleanedTransferRow[] = [
     target_team_department_category: "People & Culture",
     target_category_sub_team: "People & Culture",
     position_title: "HR Business Partner",
-    hiring_manager_email: "thanakorn.p@company.com",
+    hiring_manager_email: "thanakorn.p@shopee.com",
     backfill_or_new_hc: "Backfill",
     transfer_type: "Cross Entity",
     cleaned_at: "2024-05-20T11:30:00.000Z"
@@ -221,7 +251,7 @@ const transferRows: CleanedTransferRow[] = [
     unique_job_id: "SPE-MKT-0061",
     join_status: "MATCHED",
     submitted_at: "19 May 2024 08:50",
-    candidate_email: "kanyarat.m@company.com",
+    candidate_email: "kanyarat.m@shopee.com",
     candidate_name: "Kanyarat M.",
     employee_id: "EMP-01580",
     current_entity: "SPE",
@@ -237,7 +267,7 @@ const transferRows: CleanedTransferRow[] = [
     hris_current_team: "Marketing",
     hris_current_title: "Marketing Officer",
     hris_reporting_manager: "P Tae",
-    hris_reporting_manager_email: "ptae@company.com",
+    hris_reporting_manager_email: "ptae@shopee.com",
     hris_yos: "12",
     current_performance: "B+",
     hrbp: "HRBP Main",
@@ -245,7 +275,7 @@ const transferRows: CleanedTransferRow[] = [
     target_team_department_category: "Brand Marketing",
     target_category_sub_team: "Brand Marketing",
     position_title: "Marketing Officer",
-    hiring_manager_email: "brand.hm@company.com",
+    hiring_manager_email: "brand.hm@shopee.com",
     backfill_or_new_hc: "New HC",
     transfer_type: "Same Entity",
     cleaned_at: "2024-05-19T09:20:00.000Z"
@@ -255,7 +285,7 @@ const transferRows: CleanedTransferRow[] = [
     unique_job_id: "SCOM-BI-0062",
     join_status: "MATCHED",
     submitted_at: "18 May 2024 12:20",
-    candidate_email: "saran.p@company.com",
+    candidate_email: "saran.p@shopee.com",
     candidate_name: "Saran P.",
     employee_id: "EMP-01901",
     current_entity: "SPE",
@@ -271,7 +301,7 @@ const transferRows: CleanedTransferRow[] = [
     hris_current_team: "Finance",
     hris_current_title: "Accountant",
     hris_reporting_manager: "HOD Finance",
-    hris_reporting_manager_email: "hod.finance@company.com",
+    hris_reporting_manager_email: "hod.finance@shopee.com",
     hris_yos: "24",
     current_performance: "A",
     hrbp: "HRBP Main",
@@ -279,7 +309,7 @@ const transferRows: CleanedTransferRow[] = [
     target_team_department_category: "Finance",
     target_category_sub_team: "Finance",
     position_title: "Accountant",
-    hiring_manager_email: "finance.hm@company.com",
+    hiring_manager_email: "finance.hm@shopee.com",
     backfill_or_new_hc: "Backfill",
     transfer_type: "Same Entity",
     cleaned_at: "2024-05-22T10:05:00.000Z"
@@ -293,15 +323,15 @@ const onboardingRows: OnboardingJoinerSummary[] = [
     previousStepTracker: "message_1_sent",
     nextStepTracker: "message_3_pending",
     onboardingCompleted: false,
-    dbKey: "maya.t@company.com",
+    dbKey: "maya.t@shopee.com",
     fullName: "Maya Thanasit",
     nickname: "Maya",
-    companyEmail: "maya.t@company.com",
+    companyEmail: "maya.t@shopee.com",
     personalEmail: "maya.personal@example.com",
     mobile: "0812345678",
-    buddyEmail: "buddy.hr@company.com",
+    buddyEmail: "buddy.hr@shopee.com",
     hrbpName: "HRBP Main",
-    hrbpEmail: "hrbp@company.com",
+    hrbpEmail: "hrbp@shopee.com",
     onboardingSession: "20 May 2024",
     department: "People Operations",
     legalEntity: "SPE",
@@ -311,7 +341,7 @@ const onboardingRows: OnboardingJoinerSummary[] = [
     dateOfJoin: "2024-05-20",
     endOfProbation: "2024-09-20",
     speReportingManager: "Napatch Charoensuk",
-    speReportingManagerEmail: "napatch.c@company.com",
+    speReportingManagerEmail: "napatch.c@shopee.com",
     location: "Bangkok",
     recruiter: "Recruiter A",
     ageDays: 3,
@@ -324,13 +354,13 @@ const onboardingRows: OnboardingJoinerSummary[] = [
     previousStepTracker: "message_2_day_3",
     nextStepTracker: "completed",
     onboardingCompleted: false,
-    dbKey: "narin.k@company.com",
+    dbKey: "narin.k@shopee.com",
     fullName: "Narin K.",
     nickname: "Narin",
-    companyEmail: "narin.k@company.com",
-    buddyEmail: "buddy.ops@company.com",
+    companyEmail: "narin.k@shopee.com",
+    buddyEmail: "buddy.ops@shopee.com",
     hrbpName: "HRBP Main",
-    hrbpEmail: "hrbp@company.com",
+    hrbpEmail: "hrbp@shopee.com",
     onboardingSession: "16 May 2024",
     department: "Operations",
     legalEntity: "SCOM",
@@ -351,13 +381,13 @@ const onboardingRows: OnboardingJoinerSummary[] = [
     previousStepTracker: "message_3_week_1",
     nextStepTracker: "completed",
     onboardingCompleted: true,
-    dbKey: "pim.s@company.com",
+    dbKey: "pim.s@shopee.com",
     fullName: "Pim S.",
     nickname: "Pim",
-    companyEmail: "pim.s@company.com",
-    buddyEmail: "buddy.pc@company.com",
+    companyEmail: "pim.s@shopee.com",
+    buddyEmail: "buddy.pc@shopee.com",
     hrbpName: "HRBP Main",
-    hrbpEmail: "hrbp@company.com",
+    hrbpEmail: "hrbp@shopee.com",
     onboardingSession: "13 May 2024",
     department: "Finance",
     legalEntity: "SPE",
@@ -488,7 +518,20 @@ export async function getInternalTransferDetail(caseId: string): Promise<Interna
   resetSource();
   const rows = await loadCaseRows();
   const transfers = await loadTransferRows();
-  const row = rows.find((item) => item.case_id === caseId);
+  const decoded = decodeURIComponent(caseId);
+
+  let row = rows.find((item) => item.case_id === decoded || item.unique_job_id === decoded);
+  if (!row) {
+    // try to resolve from transfer rows by candidate email, employee id or candidate name
+    const matchingTransfer = transfers.find(
+      (t) => (t.candidate_email && (t.candidate_email === decoded || decoded.includes(t.candidate_email) || t.candidate_email.includes(decoded))) ||
+      (t.employee_id && (t.employee_id === decoded || decoded.includes(t.employee_id))) ||
+      (t.candidate_name && (t.candidate_name === decoded || decoded.includes(t.candidate_name)))
+    );
+    if (matchingTransfer) {
+      row = rows.find((r) => r.case_id === matchingTransfer.case_id || r.unique_job_id === matchingTransfer.unique_job_id) ?? row;
+    }
+  }
   if (!row) return null;
 
   const transfer = transferFor(row, transfers);
@@ -503,13 +546,17 @@ export async function getInternalTransferDetail(caseId: string): Promise<Interna
     targetRole: transfer?.position_title,
     transferType: transfer?.transfer_type,
     progress: [
-      event(row.case_id, "Form submitted", "System", "done", "20 May 2024 10:30"),
-      event(row.case_id, "HR screening", "HRBP", "done", "20 May 2024 11:00"),
-      event(row.case_id, "Salary check", "P'Tae", row.workflow_status === "SALARY_CHECK_PENDING" ? "pending" : "done", "20 May 2024 11:30"),
-      event(row.case_id, "Interviewing", "Hiring Manager", row.workflow_status === "INTERVIEWING" ? "pending" : "done"),
-      event(row.case_id, "Decision", "Hiring Manager", "pending"),
-      event(row.case_id, "HOD approval", "Current HOD", row.workflow_status === "HOD_APPROVAL_PENDING" ? "pending" : "done"),
-      event(row.case_id, "Confirmation", "HRBP", "pending")
+      event(row.case_id, "Auto screen", "System", progressStatus(row.auto_screen_result)),
+      event(row.case_id, "HRBP criteria decision", "HRBP", progressStatus(row.hrbp_criteria_decision)),
+      event(row.case_id, "Salary check result", "Payroll", progressStatus(row.salary_check_result)),
+      event(row.case_id, "HRBP payroll decision", "Payroll", progressStatus(row.hrbp_payroll_decision)),
+      event(row.case_id, "Current manager result", "Current Manager", progressStatus(row.current_manager_result)),
+      event(row.case_id, "HRBP reject decision", "HRBP", progressStatus(row.hrbp_cm_rejectCase_decision)),
+      event(row.case_id, "Interview result", "Hiring Manager", progressStatus(row.interview_result)),
+      event(row.case_id, "Interview fail decision", "HRBP", progressStatus(row.hrbp_interview_fail_decision)),
+      event(row.case_id, "Effective date", "System", progressStatus(row.effective_date)),
+      event(row.case_id, "Current manager approval", "Current Manager", progressStatus(row.current_manager_approval)),
+      event(row.case_id, "HOD approval", "Current HOD", progressStatus(row.hod_approval))
     ],
     latestActivity: [
       event(row.case_id, row.message, row.channelCode === "EMAIL" ? "System" : "HRBP", row.last_error ? "error" : "done", "20 May 2024 11:30"),
@@ -529,6 +576,21 @@ export async function getOnboardingJoiners() {
     generatedAt,
     source: lastSource
   };
+}
+
+export async function getHRBPList(): Promise<{ name: string; nickname?: string; email?: string }[]> {
+  resetSource();
+  const rows = await readAutomationTab("HRBP_List");
+  setSource(rows);
+  if (!rows.length) return [];
+  return rows.map((r) => {
+    const row = r as Record<string, string>;
+    return {
+      name: row.Name ?? row.name ?? row.Name?.toString() ?? "",
+      nickname: row.Nickname ?? row.nickname ?? "",
+      email: row.Email ?? row.email ?? ""
+    };
+  });
 }
 
 export async function getDashboardSummary(): Promise<DashboardSummaryResponse> {
@@ -595,6 +657,24 @@ function event(caseId: string, title: string, actor: string, status: TimelineEve
   };
 }
 
+function progressStatus(value: string): TimelineEvent["status"] {
+  const normalized = value?.toLowerCase().trim();
+  if (!normalized || normalized === "pending" || normalized === "waiting" || normalized === "") {
+    return "pending";
+  }
+  if (normalized === "pass" || normalized === "approved" || normalized === "done" || normalized === "eligible") {
+    return "done";
+  }
+  return normalized === "error" || normalized === "rejected" || normalized === "fail" ? "error" : "pending";
+}
+
+function progressStatusGroup(values: string[]): TimelineEvent["status"] {
+  const statuses = values.map(progressStatus);
+  if (statuses.includes("error")) return "error";
+  if (statuses.every((status) => status === "done")) return "done";
+  return "pending";
+}
+
 function countBy<T>(rows: T[], key: (row: T) => string) {
   return rows.reduce<Record<string, number>>((acc, row) => {
     const value = key(row) || "unknown";
@@ -611,8 +691,13 @@ function withCaseDefaults(row: Record<string, string>): CaseRow {
     pending_actor: row.pending_actor ?? "",
     next_action: row.next_action ?? "",
     auto_screen_result: row.auto_screen_result ?? "",
+    hrbp_criteria_decision: row.hrbp_criteria_decision ?? "",
     salary_check_result: row.salary_check_result ?? "",
+    hrbp_payroll_decision: row.hrbp_payroll_decision ?? "",
+    current_manager_result: row.current_manager_result ?? "",
+    hrbp_cm_rejectCase_decision: row.hrbp_cm_rejectCase_decision ?? "",
     interview_result: row.interview_result ?? "",
+    hrbp_interview_fail_decision: row.hrbp_interview_fail_decision ?? "",
     effective_date: row.effective_date ?? "",
     current_manager_approval: row.current_manager_approval ?? "",
     hod_approval: row.hod_approval ?? "",

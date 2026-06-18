@@ -36,6 +36,7 @@ export type CaseSummary = {
   message?: string;
   channelCode?: string;
   hrbpCase?: string;
+  hrbpOwners?: HrbpOwner[];
 };
 
 export type TimelineEvent = {
@@ -47,6 +48,14 @@ export type TimelineEvent = {
   status: "done" | "pending" | "error";
   occurredAt?: string;
   detail?: string;
+};
+
+export type HrbpOwner = {
+  id: string;
+  name: string;
+  nickname?: string;
+  email?: string;
+  initials: string;
 };
 
 export type InternalTransferDetail = CaseSummary & {

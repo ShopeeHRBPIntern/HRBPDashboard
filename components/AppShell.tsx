@@ -1,5 +1,7 @@
+"use client";
 import {
-  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
   BarChart3,
   Bell,
   BriefcaseBusiness,
@@ -13,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 
 const nav = [
   { href: "/", label: "Overall Dashboard", key: "dashboard", icon: Home, count: "17" },
@@ -40,20 +43,44 @@ export function AppShell({
   children: ReactNode;
   counts?: { dashboard?: number; "internal-transfer"?: number; conversion?: number; onboarding?: number };
 }) {
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem("appShell.collapsed");
+      setCollapsed(v === "1");
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("appShell.collapsed", collapsed ? "1" : "0");
+    } catch {}
+  }, [collapsed]);
+
   return (
     <div className="min-h-screen bg-soft text-ink">
-      <aside className="fixed inset-y-0 left-0 z-20 flex w-64 flex-col border-r border-line bg-white">
-        <div className="flex h-16 items-center gap-3 border-b border-line px-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg overflow-hidden">
+      <aside className={`hidden lg:flex fixed inset-y-0 left-0 z-20 flex-col border-r border-line bg-white ${collapsed ? "w-16" : "w-64"} transition-all duration-200 ease-in-out` }>
+        <div className="relative flex h-16 items-center gap-3 border-b border-line px-5">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg overflow-visible">
             <img src="/logo.jpeg" alt="Logo" className="h-9 w-9 object-cover" />
           </div>
-          <div>
-            <p className="font-bold leading-tight">Smart HR Ops</p>
-            <p className="text-xs text-slate-500">Automation Platform</p>
-          </div>
+          {!collapsed ? (
+            <div>
+              <p className="font-bold leading-tight">Smart HR Ops</p>
+              <p className="text-xs text-slate-500">Automation Platform</p>
+            </div>
+          ) : null}
+          <button
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            onClick={() => setCollapsed((s) => !s)}
+            className={`rounded p-1 text-slate-400 hover:bg-slate-50 transition-transform duration-200 ${collapsed ? "absolute right-2" : "ml-auto"}`}
+          >
+            {collapsed ? <ChevronRight className="h-4 w-4 transform transition-transform duration-200" /> : <ChevronLeft className="h-4 w-4 transform transition-transform duration-200" />}
+          </button>
         </div>
         <div className="flex-1 overflow-y-auto px-3 py-5">
-          <p className="px-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Processes</p>
+          {!collapsed ? <p className="px-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Processes</p> : null}
           <nav className="mt-2 space-y-1">
             {[
               { href: "/", label: "Overall Dashboard", key: "dashboard", icon: Home, count: counts?.dashboard ?? "-" },
@@ -67,47 +94,38 @@ export function AppShell({
                 <Link
                   key={item.key}
                   href={item.href}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold ${
-                    selected ? "bg-blue-50 text-brand" : "text-slate-600 hover:bg-slate-50"
-                  }`}
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold ${selected ? "bg-blue-50 text-brand" : "text-slate-600 hover:bg-slate-50"} transition-colors duration-150`}
                 >
                   <Icon className="h-4 w-4" />
-                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">{item.count}</span>
+                  {!collapsed ? (
+                    <>
+                      <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">{item.count}</span>
+                    </>
+                  ) : null}
                 </Link>
               );
             })}
           </nav>
 
           <div className="my-6 border-t border-line" />
-          <p className="px-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Operations</p>
-          <div className="mt-2 space-y-1">
-            {ops.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div key={item.label} className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-slate-600">
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </div>
-              );
-            })}
-          </div>
         </div>
 
         <div className="border-t border-line p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 font-bold text-brand">HR</div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold">HRBP</p>
-              <p className="truncate text-xs text-slate-500">hrbp@company.com</p>
-            </div>
-            <ArrowRight className="h-4 w-4 text-slate-400" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden bg-blue-100 font-bold text-brand">HR</div>
+            {!collapsed ? (
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-bold">HRBP</p>
+                <p className="truncate text-xs text-slate-500">hrbp@shopee.com</p>
+              </div>
+            ) : null}
           </div>
         </div>
       </aside>
 
-      <main className="pl-64">
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-line bg-white/90 px-8 backdrop-blur">
+      <main className={`${collapsed ? "lg:pl-16" : "lg:pl-64"} transition-all duration-200 ease-in-out`}>
+        <header className="sticky top-0 z-10 flex flex-col gap-4 border-b border-line bg-white/90 px-4 py-4 backdrop-blur lg:flex-row lg:items-center lg:justify-between lg:px-8 lg:py-0">
           <div>
             <h1 className="text-xl font-bold">{title}</h1>
             {subtitle ? <p className="text-sm text-slate-500">{subtitle}</p> : null}
