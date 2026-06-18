@@ -24,6 +24,8 @@ export type CaseSummary = {
   currentEntity?: string;
   targetEntity?: string;
   roleTitle?: string;
+  currentRole?: string;
+  targetRole?: string;
   status: string;
   statusLabel: string;
   pendingActor: string;
@@ -37,6 +39,13 @@ export type CaseSummary = {
   channelCode?: string;
   hrbpCase?: string;
   hrbpOwners?: HrbpOwner[];
+  hrbp_criteria_decision?: string;
+  salary_check_result?: string;
+  current_manager_result?: string;
+  interview_result?: string;
+  effective_date?: string;
+  current_manager_approval?: string;
+  hod_approval?: string;
 };
 
 export type TimelineEvent = {

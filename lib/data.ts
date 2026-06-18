@@ -467,6 +467,8 @@ function normalizeCase(row: CaseRow, transfers: CleanedTransferRow[]): CaseSumma
     currentEntity: transfer?.current_entity,
     targetEntity: transfer?.entity_code,
     roleTitle: transfer?.hris_current_title ?? transfer?.position_title,
+    currentRole: transfer?.hris_current_title,
+    targetRole: transfer?.position_title,
     status: row.workflow_status,
     statusLabel: statusLabels[row.workflow_status] ?? row.workflow_status.replaceAll("_", " "),
     pendingActor: row.pending_actor,
@@ -478,7 +480,14 @@ function normalizeCase(row: CaseRow, transfers: CleanedTransferRow[]): CaseSumma
     lastError: row.last_error || undefined,
     message: row.message,
     channelCode: row.channelCode,
-    hrbpCase: row.HRBP_case
+    hrbpCase: row.HRBP_case,
+    hrbp_criteria_decision: row.hrbp_criteria_decision,
+    salary_check_result: row.salary_check_result,
+    current_manager_result: row.current_manager_result,
+    interview_result: row.interview_result,
+    effective_date: row.effective_date,
+    current_manager_approval: row.current_manager_approval,
+    hod_approval: row.hod_approval
   };
 }
 
@@ -583,12 +592,13 @@ export async function getHRBPList(): Promise<{ name: string; nickname?: string; 
   const rows = await readAutomationTab("HRBP_List");
   setSource(rows);
   if (!rows.length) return [];
+  const cell = (value: unknown) => (value == null ? "" : String(value));
   return rows.map((r) => {
-    const row = r as Record<string, string>;
+    const row = r as Record<string, unknown>;
     return {
-      name: row.Name ?? row.name ?? row.Name?.toString() ?? "",
-      nickname: row.Nickname ?? row.nickname ?? "",
-      email: row.Email ?? row.email ?? ""
+      name: cell(row.Name ?? row.name),
+      nickname: cell(row.Nickname ?? row.nickname),
+      email: cell(row.Email ?? row.email)
     };
   });
 }
