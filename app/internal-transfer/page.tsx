@@ -1,4 +1,4 @@
-import { ArrowUpDown, ChevronDown, FileDown, Filter, Grid3X3, List, Plus, Search } from "lucide-react";
+import { ArrowUpDown, ChevronDown, FileDown, Filter, Grid3X3, List, Search } from "lucide-react";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { CaseCard } from "@/components/CaseCard";
@@ -250,10 +250,6 @@ export default async function InternalTransferPage({ searchParams }: { searchPar
               <FileDown className="h-4 w-4" />
               Export
             </a>
-            <button className="inline-flex h-9 items-center gap-2 rounded-md bg-brand px-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700">
-              <Plus className="h-4 w-4" />
-              New Case
-            </button>
           </div>
         </div>
 

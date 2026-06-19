@@ -1,6 +1,7 @@
 import { createSign } from "crypto";
 
 const sheetsScope = "https://www.googleapis.com/auth/spreadsheets.readonly";
+let tokenCache: { token: string; expiresAt: number } | null = null;
 
 export async function getSheetRecords(spreadsheetId: string | undefined, range: string) {
   if (!spreadsheetId || !process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
@@ -72,6 +73,10 @@ export function getGoogleSheetsEnvStatus() {
 }
 
 async function getAccessToken() {
+  if (tokenCache && tokenCache.expiresAt > Date.now()) {
+    return tokenCache.token;
+  }
+
   const now = Math.floor(Date.now() / 1000);
   const assertion = signJwt({
     iss: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -101,6 +106,7 @@ async function getAccessToken() {
     throw new Error("Google token response missing access_token");
   }
 
+  tokenCache = { token: body.access_token, expiresAt: Date.now() + 55 * 60 * 1000 };
   return body.access_token;
 }
 

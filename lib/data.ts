@@ -405,15 +405,37 @@ const onboardingRows: OnboardingJoinerSummary[] = [
 ];
 
 const statusLabels: Record<string, string> = {
+  HR_SCREENING: "HR Screening",
+  HR_SCREENING_PENDING: "HR Screening",
+  HRBP_CRITERIA_PENDING: "HRBP Criteria",
+  HRBP_CRITERIA_REVIEW: "HRBP Criteria",
   INTERVIEWING: "Interviewing",
+  INTERVIEW_PENDING: "Interviewing",
+  INTERVIEW_RESULT_PENDING: "Interviewing",
   SALARY_CHECK_PENDING: "Salary Check",
+  SALARY_CHECK: "Salary Check",
+  CURRENT_MANAGER_PENDING: "Manager Result",
+  CURRENT_MANAGER_APPROVAL_PENDING: "Manager Approval",
+  EFFECTIVE_DATE_PENDING: "Effective Date",
   HOD_APPROVAL_PENDING: "HOD Approval",
   CONVERSION_WAITING_HOC_APPROVAL: "HOC Approval",
   CONVERSION_READY_FOR_SHEET_UPDATE: "Ready for Sheet Update"
 };
 
+const statusByStep: Array<[keyof CaseRow, string]> = [
+  ["hrbp_criteria_decision", "HRBP Criteria"],
+  ["salary_check_result", "Salary Check"],
+  ["current_manager_result", "Manager Result"],
+  ["interview_result", "Interviewing"],
+  ["effective_date", "Effective Date"],
+  ["current_manager_approval", "Manager Approval"],
+  ["hod_approval", "HOD Approval"]
+];
+
 const externalActors = new Set(["PAYROLL", "HIRING_MANAGER", "CURRENT_MANAGER", "CURRENT_HOD"]);
 let lastSource: "google_sheets" | "mock" = "mock";
+const tabCacheTtlMs = Number(process.env.SHEET_CACHE_TTL_MS ?? 60_000);
+const tabCache = new Map<string, { expiresAt: number; rows: Record<string, string>[]; promise?: Promise<Record<string, string>[]> }>();
 
 async function loadCaseRows(): Promise<CaseRow[]> {
   const rows = await readAutomationTab("cases");
@@ -433,12 +455,25 @@ async function loadOnboardingRows(): Promise<OnboardingJoinerSummary[]> {
   return rows.length ? rows.map((row) => normalizeOnboardingRow(row)) : onboardingRows;
 }
 
+async function loadCaseAndTransferRows() {
+  const [rows, transfers] = await Promise.all([loadCaseRows(), loadTransferRows()]);
+  return { rows, transfers };
+}
+
 async function readAutomationTab(range: string) {
-  try {
-    return await getSheetRecords(process.env.AUTOMATION_DB_SPREADSHEET_ID, range);
-  } catch {
-    return [];
-  }
+  const now = Date.now();
+  const cached = tabCache.get(range);
+  if (cached && cached.expiresAt > now) return cached.rows;
+  if (cached?.promise) return cached.promise;
+
+  const promise = getSheetRecords(process.env.AUTOMATION_DB_SPREADSHEET_ID, range)
+    .catch(() => [] as Record<string, string>[])
+    .then((rows) => {
+      tabCache.set(range, { rows, expiresAt: Date.now() + tabCacheTtlMs });
+      return rows;
+    });
+  tabCache.set(range, { rows: cached?.rows ?? [], expiresAt: 0, promise });
+  return promise;
 }
 
 function transferFor(row: CaseRow, transfers: CleanedTransferRow[]) {
@@ -451,6 +486,18 @@ function processFor(row: CaseRow): ProcessCode {
 
 function isOverdue(row: CaseRow) {
   return row.workflow_status === "HOD_APPROVAL_PENDING" || Boolean(row.last_error);
+}
+
+function isOpenStatus(value = "") {
+  const normalized = value.trim().toLowerCase();
+  return Boolean(normalized && ["pending", "waiting", "wait", "error", "rejected", "reject", "failed", "fail"].includes(normalized));
+}
+
+function deriveCaseStatusLabel(row: CaseRow) {
+  if (statusLabels[row.workflow_status]) return statusLabels[row.workflow_status];
+  const activeStep = statusByStep.find(([key]) => isOpenStatus(String(row[key] ?? "")));
+  if (activeStep) return activeStep[1];
+  return row.workflow_status ? row.workflow_status.replaceAll("_", " ") : "HR Screening";
 }
 
 function normalizeCase(row: CaseRow, transfers: CleanedTransferRow[]): CaseSummary {
@@ -470,7 +517,7 @@ function normalizeCase(row: CaseRow, transfers: CleanedTransferRow[]): CaseSumma
     currentRole: transfer?.hris_current_title,
     targetRole: transfer?.position_title,
     status: row.workflow_status,
-    statusLabel: statusLabels[row.workflow_status] ?? row.workflow_status.replaceAll("_", " "),
+    statusLabel: deriveCaseStatusLabel(row),
     pendingActor: row.pending_actor,
     nextAction: row.next_action,
     submittedAt: transfer?.submitted_at ?? row.created_at,
@@ -493,8 +540,7 @@ function normalizeCase(row: CaseRow, transfers: CleanedTransferRow[]): CaseSumma
 
 export async function getInternalTransferCases() {
   resetSource();
-  const rows = await loadCaseRows();
-  const transfers = await loadTransferRows();
+  const { rows, transfers } = await loadCaseAndTransferRows();
   const items = rows.filter((row) => row.transfer_type !== "CONVERSION").map((row) => normalizeCase(row, transfers));
   return {
     items,
@@ -509,8 +555,7 @@ export async function getInternalTransferCases() {
 
 export async function getConversionCases() {
   resetSource();
-  const rows = await loadCaseRows();
-  const transfers = await loadTransferRows();
+  const { rows, transfers } = await loadCaseAndTransferRows();
   const items = rows.filter((row) => row.transfer_type === "CONVERSION").map((row) => normalizeCase(row, transfers));
   return {
     items,
@@ -525,8 +570,7 @@ export async function getConversionCases() {
 
 export async function getInternalTransferDetail(caseId: string): Promise<InternalTransferDetail | null> {
   resetSource();
-  const rows = await loadCaseRows();
-  const transfers = await loadTransferRows();
+  const { rows, transfers } = await loadCaseAndTransferRows();
   const decoded = decodeURIComponent(caseId);
 
   let row = rows.find((item) => item.case_id === decoded || item.unique_job_id === decoded);
@@ -605,9 +649,10 @@ export async function getHRBPList(): Promise<{ name: string; nickname?: string; 
 
 export async function getDashboardSummary(): Promise<DashboardSummaryResponse> {
   resetSource();
-  const transfers = (await getInternalTransferCases()).items;
-  const conversions = (await getConversionCases()).items;
-  const onboarding = (await loadOnboardingRows());
+  const [{ rows, transfers: transferRows }, onboarding] = await Promise.all([loadCaseAndTransferRows(), loadOnboardingRows()]);
+  const allTransferCases = rows.map((row) => normalizeCase(row, transferRows));
+  const transfers = allTransferCases.filter((item) => item.process === "internal_transfer");
+  const conversions = allTransferCases.filter((item) => item.process === "conversion");
   const allCases = [...transfers, ...conversions];
 
   return {
@@ -760,13 +805,37 @@ function withTransferDefaults(row: Record<string, string>): CleanedTransferRow {
   };
 }
 
+function inferNextOnboardingStep(stepTracker = "", completed = false) {
+  if (completed || stepTracker === "completed") return "completed";
+  const nextByStep: Record<string, string> = {
+    message_1_pending: "message_1_sent",
+    message_1_sent: "message_2_pending",
+    message_2_pending: "message_2_day_3",
+    message_2_day_3: "message_3_pending",
+    message_3_pending: "message_3_week_1",
+    message_3_week_1: "completed"
+  };
+  return nextByStep[stepTracker] ?? "";
+}
+
+function onboardingCell(row: Record<string, string>, ...keys: string[]) {
+  for (const key of keys) {
+    const value = row[key];
+    if (value) return value;
+  }
+  return "";
+}
+
 function normalizeOnboardingRow(row: Record<string, string>): OnboardingJoinerSummary {
+  const completed = parseBoolean(onboardingCell(row, "onboarding_completed", "onboardingCompleted", "Onboarding Completed"));
+  const stepTracker = onboardingCell(row, "step_tracker", "stepTracker", "Step Tracker");
+  const nextStepTracker = onboardingCell(row, "next_step_tracker", "nextStepTracker", "Next Step Tracker", "next step tracker") || inferNextOnboardingStep(stepTracker, completed);
   return {
-    rowInFte: row.row_in_FTE,
-    stepTracker: row.step_tracker ?? "",
-    previousStepTracker: row.previous_step_tracker,
-    nextStepTracker: row.next_step_tracker,
-    onboardingCompleted: parseBoolean(row.onboarding_completed),
+    rowInFte: onboardingCell(row, "row_in_FTE", "row_in_fte", "Row in FTE"),
+    stepTracker,
+    previousStepTracker: onboardingCell(row, "previous_step_tracker", "previousStepTracker", "Previous Step Tracker"),
+    nextStepTracker,
+    onboardingCompleted: completed,
     dbKey: row.db_key ?? row.company_email ?? row.personal_email ?? "",
     fullName: row.full_name ?? [row.first_name, row.surname].filter(Boolean).join(" "),
     nickname: row.nickname,

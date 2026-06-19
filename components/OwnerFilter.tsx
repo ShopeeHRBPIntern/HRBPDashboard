@@ -4,16 +4,7 @@ import { useRouter } from "next/navigation";
 import { Check, ChevronDown, Search, UserRound, X } from "lucide-react";
 import type { HrbpOwner } from "@/types/dashboard";
 
-type OwnerFilterState = {
-  q?: string;
-  step?: string;
-  status?: string;
-  pending?: string;
-  department?: string;
-  entity?: string;
-  sort?: string;
-  view?: string;
-};
+type OwnerFilterState = Record<string, string | undefined>;
 
 function initialsFrom(value: string) {
   return value
@@ -31,11 +22,17 @@ function ownerLabel(owner: HrbpOwner) {
 export default function OwnerFilter({
   owners,
   selectedOwners,
-  filters = {}
+  filters = {},
+  basePath = "/internal-transfer",
+  ownerParam = "owner",
+  label = "HRBP"
 }: {
   owners: HrbpOwner[];
   selectedOwners: string[];
   filters?: OwnerFilterState;
+  basePath?: string;
+  ownerParam?: string;
+  label?: string;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -62,17 +59,12 @@ export default function OwnerFilter({
 
   function pushSelection(next: string[]) {
     const params = new URLSearchParams();
-    if (filters.q) params.set("q", filters.q);
-    if (filters.step) params.set("step", filters.step);
-    if (filters.status) params.set("status", filters.status);
-    if (filters.pending) params.set("pending", filters.pending);
-    if (filters.department) params.set("department", filters.department);
-    if (filters.entity) params.set("entity", filters.entity);
-    if (filters.sort) params.set("sort", filters.sort);
-    if (filters.view) params.set("view", filters.view);
-    next.forEach((value) => params.append("owner", value));
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) params.set(key, value);
+    });
+    next.forEach((value) => params.append(ownerParam, value));
     const url = params.toString();
-    router.push(`/internal-transfer${url ? `?${url}` : ""}`);
+    router.push(`${basePath}${url ? `?${url}` : ""}`);
   }
 
   function toggleOwner(id: string) {
@@ -86,7 +78,7 @@ export default function OwnerFilter({
     <div ref={ref} className="relative min-w-0">
       <div className={`flex h-10 w-full items-center rounded-md border bg-white shadow-sm transition ${active ? "border-blue-300 ring-1 ring-blue-100" : "border-line hover:bg-slate-50"}`}>
         <button type="button" onClick={() => setOpen((current) => !current)} className="flex min-w-0 flex-1 items-center gap-2 px-3 text-left text-xs font-semibold text-slate-600" aria-expanded={open}>
-          <span className="shrink-0">HRBP</span>
+          <span className="shrink-0">{label}</span>
           {active ? (
             <span className="flex min-w-0 items-center">
               {selectedOwnerDetails.slice(0, 3).map((owner, index) => (
